@@ -46,18 +46,22 @@ class UpdatePostsJobTest {
                 "{\"userId\": 1, \"id\": 101, \"title\":\"example title 2\", \"body\":\"example body 2\"}]";
 
         MockWebServer mockWebServer = new MockWebServer();
+
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .setBody(json)
                 .setResponseCode(200));
+
         RestConsumer restConsumer =
                 new RestConsumer(mockWebServer.url("/").toString(),
                         restTemplate, postsUseCase);
+        restConsumer.getAll(Optional.empty());
 
         // when
         PostsUseCase.UpdatePostCommand command =
                 new PostsUseCase.UpdatePostCommand(101L, "Changed title", "Changed Body");
         postsUseCase.updatePost(command);
+
         job.run();
 
         // then
